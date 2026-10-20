@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import path from 'node:path';
 import { config } from './config';
 import { errorHandler, notFound } from './middleware/error';
 import { authRouter } from './routes/auth';
@@ -19,6 +20,15 @@ app.use('/api/auth', authRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/tasks', tasksRouter);
+app.use('/api', notFound);
+
+if (config.staticDir) {
+  const staticDir = path.resolve(config.staticDir);
+  app.use(express.static(staticDir));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(staticDir, 'index.html'));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);

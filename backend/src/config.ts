@@ -14,4 +14,5 @@ export const config = {
   jwtSecret: required('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1d',
   corsOrigin: process.env.CORS_ORIGIN?.split(',') ?? '*',
+  staticDir: process.env.STATIC_DIR,
 };
