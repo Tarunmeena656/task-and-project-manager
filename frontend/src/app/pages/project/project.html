@@ -1,0 +1,149 @@
+<a routerLink="/dashboard" class="back-link">
+  <mat-icon>arrow_back</mat-icon>
+  Dashboard
+</a>
+
+@if (projectError()) {
+  <div class="state">
+    <p>{{ projectError() }}</p>
+    <button mat-stroked-button (click)="loadProject()">Retry</button>
+  </div>
+} @else if (project(); as project) {
+  <div class="page-header">
+    <div>
+      <h1>
+        {{ project.name }}
+        <span class="badge" [class]="'badge ' + project.status.toLowerCase()">{{ project.status }}</span>
+      </h1>
+      <p class="muted">{{ project.description || 'No description' }}</p>
+      <p class="muted small">Created {{ project.createdAt | date: 'mediumDate' }} · {{ project._count.tasks }} tasks</p>
+    </div>
+    <div class="actions">
+      <button mat-stroked-button (click)="editProject()">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+      <button mat-stroked-button color="warn" (click)="deleteProject()">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div class="page-header tasks-header">
+    <h2>Tasks</h2>
+    <button mat-flat-button (click)="openTask(null)">
+      <mat-icon>add</mat-icon>
+      New task
+    </button>
+  </div>
+
+  <form [formGroup]="filters" class="filters">
+    <mat-form-field class="search">
+      <mat-label>Search title</mat-label>
+      <input matInput formControlName="search" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="">All</mat-option>
+        @for (status of statuses; track status) {
+          <mat-option [value]="status">{{ status }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Priority</mat-label>
+      <mat-select formControlName="priority">
+        <mat-option value="">All</mat-option>
+        @for (priority of priorities; track priority) {
+          <mat-option [value]="priority">{{ priority }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Due from</mat-label>
+      <input matInput type="date" formControlName="dueFrom" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Due to</mat-label>
+      <input matInput type="date" formControlName="dueTo" />
+    </mat-form-field>
+    <button mat-button type="button" (click)="clearFilters()">Clear</button>
+  </form>
+
+  @if (tasksError()) {
+    <div class="state">
+      <p>{{ tasksError() }}</p>
+      <button mat-stroked-button (click)="loadTasks()">Retry</button>
+    </div>
+  } @else if (tasks(); as page) {
+    <div class="table-wrap" [class.loading]="tasksLoading()">
+      <table mat-table [dataSource]="page.items" matSort matSortActive="createdAt" matSortDirection="desc" matSortDisableClear (matSortChange)="onSort($event)">
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Title</th>
+          <td mat-cell *matCellDef="let task">
+            <div class="task-title">{{ task.title }}</div>
+            @if (task.description) {
+              <div class="muted small">{{ task.description }}</div>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let task">
+            <span class="badge" [class]="'badge ' + task.status.toLowerCase()">{{ task.status }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="priority">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Priority</th>
+          <td mat-cell *matCellDef="let task">
+            <span class="badge" [class]="'badge ' + task.priority.toLowerCase()">{{ task.priority }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="dueDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Due</th>
+          <td mat-cell *matCellDef="let task">{{ task.dueDate ? (task.dueDate | date: 'mediumDate' : 'UTC') : '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+          <td mat-cell *matCellDef="let task">{{ task.createdAt | date: 'mediumDate' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let task" class="row-actions">
+            <button mat-icon-button aria-label="Edit task" (click)="openTask(task)"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button aria-label="Delete task" (click)="deleteTask(task)"><mat-icon>delete</mat-icon></button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+
+      @if (page.items.length === 0) {
+        <div class="state">
+          @if (hasFilters().search || hasFilters().status || hasFilters().priority || hasFilters().dueFrom || hasFilters().dueTo) {
+            <p>No tasks match these filters.</p>
+            <button mat-stroked-button (click)="clearFilters()">Clear filters</button>
+          } @else {
+            <p>No tasks yet.</p>
+            <button mat-flat-button (click)="openTask(null)">Add the first task</button>
+          }
+        </div>
+      }
+
+      <mat-paginator
+        [length]="page.total"
+        [pageIndex]="page.page - 1"
+        [pageSize]="page.pageSize"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPage($event)"
+        showFirstLastButtons
+      />
+    </div>
+  } @else {
+    <div class="state"><mat-spinner diameter="40" /></div>
+  }
+} @else {
+  <div class="state"><mat-spinner diameter="40" /></div>
+}

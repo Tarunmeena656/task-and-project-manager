@@ -1,0 +1,18 @@
+<mat-toolbar color="primary" class="toolbar">
+  <a routerLink="/dashboard" class="brand">
+    <mat-icon>checklist</mat-icon>
+    <span>Task Manager</span>
+  </a>
+  <span class="spacer"></span>
+  @if (auth.user(); as user) {
+    <span class="user-name">{{ user.name }}</span>
+    <button mat-button (click)="auth.logout()">
+      <mat-icon>logout</mat-icon>
+      Logout
+    </button>
+  }
+</mat-toolbar>
+
+<main class="content">
+  <router-outlet />
+</main>

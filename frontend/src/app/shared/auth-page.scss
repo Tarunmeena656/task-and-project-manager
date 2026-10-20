@@ -1,0 +1,33 @@
+.auth-card {
+  max-width: 420px;
+  margin: 48px auto;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.auth-form button {
+  margin-top: 8px;
+  height: 44px;
+}
+
+.auth-switch,
+.auth-hint {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth-hint {
+  color: #6b7280;
+}
+
+.error-text {
+  color: #b3261e;
+  margin: 0;
+  font-size: 14px;
+}

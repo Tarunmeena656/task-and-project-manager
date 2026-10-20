@@ -1,0 +1,57 @@
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <button mat-flat-button (click)="newProject()">
+    <mat-icon>add</mat-icon>
+    New project
+  </button>
+</div>
+
+@if (loading()) {
+  <div class="state"><mat-spinner diameter="40" /></div>
+} @else if (error()) {
+  <div class="state">
+    <p>{{ error() }}</p>
+    <button mat-stroked-button (click)="load()">Retry</button>
+  </div>
+} @else if (data(); as data) {
+  <div class="summary">
+    <mat-card class="summary-card">
+      <span class="summary-label">Projects</span>
+      <span class="summary-value">{{ data.totalProjects }}</span>
+    </mat-card>
+    <mat-card class="summary-card">
+      <span class="summary-label">Total tasks</span>
+      <span class="summary-value">{{ data.totalTasks }}</span>
+    </mat-card>
+    <mat-card class="summary-card">
+      <span class="summary-label">Pending</span>
+      <span class="summary-value pending">{{ data.pendingTasks }}</span>
+    </mat-card>
+    <mat-card class="summary-card">
+      <span class="summary-label">Completed</span>
+      <span class="summary-value done">{{ data.completedTasks }}</span>
+    </mat-card>
+  </div>
+
+  <h2>Your projects</h2>
+  <div class="projects">
+    @for (project of data.projects; track project.id) {
+      <a mat-ripple class="project-card" [routerLink]="['/projects', project.id]">
+        <div class="project-top">
+          <span class="project-name">{{ project.name }}</span>
+          <span class="badge" [class]="'badge ' + project.status.toLowerCase()">{{ project.status }}</span>
+        </div>
+        <p class="project-desc">{{ project.description || 'No description' }}</p>
+        <div class="project-meta">
+          <span>{{ project._count.tasks }} tasks</span>
+          <span>Created {{ project.createdAt | date: 'mediumDate' }}</span>
+        </div>
+      </a>
+    } @empty {
+      <div class="state">
+        <p>You don't have any projects yet.</p>
+        <button mat-flat-button (click)="newProject()">Create your first project</button>
+      </div>
+    }
+  </div>
+}

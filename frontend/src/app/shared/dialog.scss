@@ -1,0 +1,22 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: min(480px, 85vw);
+  padding-top: 8px;
+}
+
+.dialog-row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.error-text {
+  color: #b3261e;
+  margin: 0;
+  font-size: 14px;
+}
